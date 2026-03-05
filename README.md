@@ -45,6 +45,9 @@ docker run -d --name memu-postgres \
 Copy the plugin to your OpenCode plugins directory:
 
 ```bash
+# Clone this repository
+git clone https://github.com/allbugterminator/openclaw-memu-plugin.git
+
 # For global installation
 cp -r opencode-memu-plugin ~/.config/opencode/plugins/memu
 
