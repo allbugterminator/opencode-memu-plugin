@@ -1,59 +1,72 @@
-# OpenCode memU Plugin
+# memU Plugin for OpenCode
 
-基于 OpenCode 插件 API 集成 [memU](https://github.com/NevaMind-AI/memU) 主动记忆系统。
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.13+-green.svg)](https://www.python.org/downloads/)
+[![memU](https://img.shields.io/badge/memU-24%2F7%20Proactive%20Memory-orange)](https://github.com/NevaMind-AI/memU)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178c6.svg)](https://www.typescriptlang.org/)
 
-## 功能特性
+[24/7 Proactive Memory](https://github.com/NevaMind-AI/memU) integration for OpenCode AI agents. Give your AI assistant permanent memory that learns from every conversation.
 
-- **memu_memorize**: 将信息存入主动记忆
-- **memu_retrieve**: 检索相关记忆上下文
-- **memu_search**: 快速搜索记忆中的事实和偏好
-- **自动学习**: 支持会话空闲时自动学习
-- **会话压缩**: 在会话压缩时注入记忆上下文
+## Why memU?
 
-## 安装
+Traditional AI assistants have no memory - they forget everything after each conversation. memU changes this by providing:
 
-### 1. 安装 memU 依赖
+- **Persistent Memory**: Remembers facts, preferences, and skills across sessions
+- **Proactive Context**: Surfaces relevant memories before you even ask
+- **Cost Efficient**: Reduces token costs with smart context caching (~1/10 of comparable usage)
+- **Hierarchical Storage**: Organized like a file system - categories, items, and resources
+
+## Features
+
+- **Continuous Learning**: Automatically memorize facts, preferences, and skills from conversations
+- **Proactive Retrieval**: Context-aware memory surfacing before responding to queries
+- **Multiple Storage Backends**: In-memory or PostgreSQL (with pgvector)
+- **Flexible LLM Providers**: OpenAI, OpenRouter, or custom endpoints
+- **Cloud or Self-Hosted**: Use memU Cloud API or deploy your own
+- **Session Compaction**: Automatically inject memory context during session compaction
+
+## Quick Start
+
+### 1. Install Dependencies
 
 ```bash
+# Install memU Python package
 pip install memu-py
+
+# Optional: For PostgreSQL storage
+docker run -d --name memu-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=memu \
+  -p 5432:5432 pgvector/pgvector:pg16
 ```
 
-或从源码安装:
+### 2. Install the Plugin
+
+Copy the plugin to your OpenCode plugins directory:
 
 ```bash
-git clone https://github.com/NevaMind-AI/memU.git
-cd memU
-pip install -e .
+# For global installation
+cp -r opencode-memu-plugin ~/.config/opencode/plugins/memu
+
+# For project-level installation
+mkdir -p .opencode/plugins
+cp -r opencode-memu-plugin .opencode/plugins/memu
 ```
 
-### 2. 配置插件
+### 3. Configure
 
-在 OpenCode 配置目录创建插件配置:
-
-**全局配置**: `~/.config/opencode/opencode.json`
-
-**项目配置**: `./opencode.json`
+Add to your OpenCode `opencode.json`:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["./opencode-memu-plugin"]
-}
-```
-
-### 3. 配置 memU
-
-在插件配置目录创建 `.opencode/plugins/memu.json` 或在主配置中添加:
-
-```json
-{
   "plugins": {
     "memu": {
       "config": {
         "provider": "self-hosted",
         "storageType": "inmemory",
         "llmProvider": "openai",
-        "llmApiKey": "your-api-key",
+        "llmApiKey": "your-openai-api-key",
         "llmModel": "gpt-4o-mini",
         "autoLearn": true,
         "proactiveRetrieval": true
@@ -63,55 +76,168 @@ pip install -e .
 }
 ```
 
-## 配置选项
+## Configuration Options
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| provider | "cloud" \| "self-hosted" | "cloud" | 使用云端或自托管 |
-| cloudApiKey | string | - | memU Cloud API 密钥 |
-| storageType | "inmemory" \| "postgres" | "inmemory" | 存储类型 |
-| postgresConnectionString | string | - | PostgreSQL 连接字符串 |
-| llmProvider | "openai" \| "openrouter" \| "custom" | "openai" | LLM 提供商 |
-| llmApiKey | string | - | LLM API 密钥 |
-| llmBaseUrl | string | - | 自定义 LLM 基础 URL |
-| llmModel | string | "gpt-4o-mini" | LLM 模型 |
-| embeddingModel | string | - | Embedding 模型 |
-| autoLearn | boolean | false | 会话空闲时自动学习 |
-| proactiveRetrieval | boolean | false | 主动检索上下文 |
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `provider` | `cloud` \| `self-hosted` | `cloud` | Use memU Cloud or self-hosted |
+| `cloudApiKey` | string | - | memU Cloud API key |
+| `storageType` | `inmemory` \| `postgres` | `inmemory` | Storage backend |
+| `postgresConnectionString` | string | - | PostgreSQL connection string |
+| `llmProvider` | `openai` \| `openrouter` \| `custom` | `openai` | LLM provider |
+| `llmApiKey` | string | - | LLM API key |
+| `llmBaseUrl` | string | - | Custom LLM base URL |
+| `llmModel` | string | `gpt-4o-mini` | LLM model |
+| `embeddingModel` | string | `text-embedding-3-small` | Embedding model |
+| `autoLearn` | boolean | `false` | Auto-memorize conversations |
+| `proactiveRetrieval` | boolean | `false` | Enable proactive context |
 
-## 使用示例
+## Available Tools
 
-### 存储记忆
+### memu_memorize
 
-```
-使用 memu_memorize 存储: 用户喜欢使用 TypeScript 开发项目
-```
-
-### 检索记忆
+Store information in memU memory. Use this to remember facts, preferences, skills, and important context.
 
 ```
-使用 memu_retrieve 查询: 用户的技术偏好是什么?
+Use memu_memorize to store: User prefers to be addressed in a formal manner
 ```
 
-### 快速搜索
+### memu_retrieve
+
+Retrieve relevant memories for context. Supports two retrieval methods:
+
+- **`rag`**: Fast embedding-based retrieval (recommended for most cases)
+- **`llm`**: Deep reasoning-based retrieval (slower but more accurate for complex queries)
 
 ```
-使用 memu_search 查询: 用户偏好的编程语言
+Use memu_retrieve with query_text: What are user's communication preferences?
 ```
 
-## 环境变量
+### memu_search
 
-- `OPENAI_API_KEY`: OpenAI API 密钥
-- `OPENROUTER_API_KEY`: OpenRouter API 密钥  
-- `MEMU_API_KEY`: memU Cloud API 密钥
+Quick search for specific facts in memory using RAG.
 
-## 依赖
+```
+Use memu_search with query: user's programming language preferences
+```
 
-- Python 3.13+
-- memu-py
-- Bun (OpenCode 运行时)
+## Usage Examples
 
-## 参考
+### Example 1: Remembering User Preferences
 
-- [memU 官方文档](https://github.com/NevaMind-AI/memU)
-- [OpenCode 插件文档](https://opencode.ai/docs/zh-cn/plugins/)
+```
+User: I prefer receiving weekly summary emails on Fridays.
+Agent: I'll remember that you prefer weekly summary emails on Fridays.
+       Use memu_memorize to store this preference.
+```
+
+### Example 2: Context-Aware Responses
+
+When the user asks "What did I work on last week?", the agent:
+
+1. Calls `memu_retrieve` with the query
+2. Gets relevant memories about past projects
+3. Provides a personalized, context-aware response
+
+### Example 3: Skill Learning
+
+The agent observes user behavior and learns skills:
+
+```
+User: [Uses vim keybindings throughout the session]
+Agent: [uses memu_memorize to store user's preference for vim keybindings]
+```
+
+## Cloud API Configuration
+
+To use memU Cloud instead of self-hosted:
+
+```json
+{
+  "plugins": {
+    "memu": {
+      "config": {
+        "provider": "cloud",
+        "cloudApiKey": "your-memu-cloud-api-key"
+      }
+    }
+  }
+}
+```
+
+Get your API key at [memu.so](https://memu.so).
+
+## Requirements
+
+- Python 3.13+ (for self-hosted memU)
+- memU Python package: `pip install memu-py`
+- For PostgreSQL storage: PostgreSQL with pgvector extension
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API key |
+| `OPENROUTER_API_KEY` | OpenRouter API key |
+| `MEMU_API_KEY` | memU Cloud API key |
+
+## Troubleshooting
+
+### Plugin not loading
+
+Check if the plugin is correctly placed in the plugins directory and the configuration is valid.
+
+### Python not found
+
+Make sure Python 3.13+ is installed and available in PATH:
+
+```bash
+python --version
+```
+
+### memu-py not installed
+
+```bash
+pip install memu-py
+```
+
+### Import errors
+
+If you see import errors, ensure memu-py is correctly installed:
+
+```bash
+python -c "from memu.app import MemoryService; print('OK')"
+```
+
+## Architecture
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│    OpenCode     │     │      memU       │
+│     Agent       │────►│    Memory       │
+│                 │     │    Service      │
+└─────────────────┘     └─────────────────┘
+        │                       │
+        │ Tools:                │ Storage:
+        │ - memu_memorize       │ - In-Memory
+        │ - memu_retrieve      │ - PostgreSQL
+        │ - memu_search        │
+                               │ LLM Providers:
+                               │ - OpenAI
+                               │ - OpenRouter
+                               │ - Custom
+```
+
+## Related Projects
+
+- [memU](https://github.com/NevaMind-AI/memU) - Core proactive memory engine
+- [memUBot](https://github.com/NevaMind-AI/memUBot) - Enterprise-ready OpenClaw with memU
+- [OpenCode](https://opencode.ai) - AI coding assistant
+
+## License
+
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
+
+---
+
+If you find this plugin useful, please consider starring the [memU repository](https://github.com/NevaMind-AI/memU)!
