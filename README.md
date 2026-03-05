@@ -76,6 +76,7 @@ Add to your OpenCode `opencode.json`:
 }
 ```
 
+
 ## Configuration Options
 
 | Option | Type | Default | Description |
