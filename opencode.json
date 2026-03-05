@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": {
+    "memu": {
+      "config": {
+        "provider": "self-hosted",
+        "storageType": "inmemory",
+        "llmProvider": "openai",
+        "llmModel": "gpt-4o-mini",
+        "autoLearn": false,
+        "proactiveRetrieval": false
+      }
+    }
+  }
+}

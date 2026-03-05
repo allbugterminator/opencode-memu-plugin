@@ -1,0 +1,9 @@
+{
+  "name": "opencode-memu-plugin",
+  "version": "1.0.0",
+  "description": "memU integration plugin for OpenCode",
+  "main": "index.ts",
+  "keywords": ["opencode", "plugin", "memu", "memory", "ai"],
+  "author": "",
+  "license": "Apache-2.0"
+}
