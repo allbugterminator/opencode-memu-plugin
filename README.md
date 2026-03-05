@@ -46,7 +46,7 @@ Copy the plugin to your OpenCode plugins directory:
 
 ```bash
 # Clone this repository
-git clone https://github.com/allbugterminator/openclaw-memu-plugin.git
+git clone https://github.com/allbugterminator/opencode-memu-plugin.git
 
 # For global installation
 cp -r opencode-memu-plugin ~/.config/opencode/plugins/memu
